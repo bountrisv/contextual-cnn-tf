@@ -21,7 +21,7 @@ class TextCNN(object):
         filter_size_2 = 4
 
         # Keeping track of l2 regularization loss (optional)
-        l2_loss = tf.constant(0.0)
+        l2_loss = tf.constant(l2_reg_lambda)
 
         # Embedding layer
         with tf.device('/gpu:0'), tf.name_scope("embedding"):
@@ -63,7 +63,7 @@ class TextCNN(object):
                 pooled_outputs.append(kmax_pooled)
 
         # Combine all the pooled features
-        self.h_pool = tf.concat(3, pooled_outputs)
+        self.h_pool = tf.concat(pooled_outputs, 3)
 
         # Add dropout
         with tf.name_scope("dropout1"):
@@ -110,7 +110,7 @@ class TextCNN(object):
 
         # CalculateMean cross-entropy loss
         with tf.name_scope("loss"):
-            losses = tf.nn.softmax_cross_entropy_with_logits(self.scores, self.input_y)
+            losses = tf.nn.softmax_cross_entropy_with_logits(logits=self.scores, labels=self.input_y)
             self.loss = tf.reduce_mean(losses) + l2_reg_lambda * l2_loss
 
         # Accuracy
